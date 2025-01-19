@@ -19,6 +19,7 @@ namespace task_cli.Messages
         { "NeedSpecifyTaskIdForChangeStatus", "You need to specify the Task Id. Example: \n\ntask-cli mask-done 1"},
         { "NeedSpecifyTaskIdForDelete", "You need to specify the Task Id. Example: \n\ntask-cli delete 1"},
         { "TaskToEditNotExist", "Not exist tasks to edit. Please add first some tasks." },
+        { "TasksListEmpty", "Not exist tasks to show. Please add first some tasks." },
         { "TaskToDeleteNotExist", "Not exist tasks to delete. Please add first some tasks." },
         { "StatusProvidedNotExist", "The status provided is not valid"},
         { "TaskUpdatedConfirmation", "Task updated!" },

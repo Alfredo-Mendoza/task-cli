@@ -172,31 +172,41 @@ class Program
     {
         List<Tasks> tasks = GetListTaks();
 
-        if(status != null)
+        if(!tasks.Any())
         {
-            tasks = tasks.FindAll(t => t.status.ToLower() == status.ToLower());
+            Console.WriteLine(MessageRepository.GetMessage("TasksListEmpty"));
+            return;
         }
 
-        if (tasks.Any())
+        if(!string.IsNullOrEmpty(status))
         {
-            Console.WriteLine("ID".PadRight(5) + "Description".PadRight(30) + "Status".PadRight(15) + "CreationAt".PadRight(25) + "UpdatedAt".PadRight(25));
-            Console.WriteLine(new string('-', 100));
-            foreach (var task in tasks)
+            tasks = tasks.FindAll(t => string.Equals(t.status, status, StringComparison.OrdinalIgnoreCase));
+            
+            if (!tasks.Any())
             {
-                Console.WriteLine(
-                    task.id.ToString().PadRight(5) +
-                    task.description.PadRight(30) +
-                    task.status.PadRight(15) +
-                    task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25) +
-                    task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25)
-                );
+                Console.WriteLine(MessageRepository.GetMessage("NotExistTasksWithStatus"), status);
+                return;
             }
-            Console.WriteLine("\n\n");
         }
-        else
+
+        DisplayTaskAsTable(tasks);
+    }
+
+    public static void DisplayTaskAsTable(List<Tasks> tasks)
+    {
+        Console.WriteLine("ID".PadRight(5) + "Description".PadRight(30) + "Status".PadRight(15) + "CreationAt".PadRight(25) + "UpdatedAt".PadRight(25));
+        Console.WriteLine(new string('-', 100));
+        foreach (var task in tasks)
         {
-            Console.WriteLine(MessageRepository.GetMessage("NotExistTasksWithStatus"), status);
+            Console.WriteLine(
+                task.id.ToString().PadRight(5) +
+                task.description.PadRight(30) +
+                task.status.PadRight(15) +
+                task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25) +
+                task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25)
+            );
         }
+        Console.WriteLine("\n\n");
     }
 
     public static void AddTask(string[] args)
