@@ -26,7 +26,7 @@ namespace task_cli.Messages
         { "NotExistsTaskId", "Not exists a task with the Id: {0}"},
         { "NotExistTasksWithStatus", "Not exist tasks with \"{0}\" status."},
         { "NeedTaskDescription", "Error - Do you need to add a description for the task. Example: \n\ntask-cli add \"Buy groceries and cook dinner\""},
-        { "NeedTaskDescriptionExample", "You need to specify the Task Id and the Description. Example: task-cli update 1 \"Buy some candys\""},
+        { "NeedTaskDescriptionExample", "You need to specify the Task Id and the Description. Example: \n\ntask-cli update 1 \"Buy some candys\""},
         { "TaskAddedSuccessfully", "Task added successfully (ID: {0})\n"}
     };
 

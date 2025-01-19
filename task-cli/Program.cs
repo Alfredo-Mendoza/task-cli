@@ -13,7 +13,7 @@ class Program
         {
             if (args.Length == 0)
             {
-                Console.WriteLine(MessageRepository.GetMessage("NotCommandProvided"));
+                PrintMessage("NotCommandProvided");
                 return;
             }
 
@@ -39,7 +39,7 @@ class Program
                     DeleteTask(args);
                     break;
                 default:
-                    Console.WriteLine(MessageRepository.GetMessage("NotCommandFounded"));
+                    PrintMessage("NotCommandFounded");
                     break;
             }
         }
@@ -62,7 +62,7 @@ class Program
 
                 if (taskToEdit != null)
                 {
-                    Console.WriteLine(MessageRepository.GetMessage("ConfirmTaskDeletion"));
+                    PrintMessage("ConfirmTaskDeletion");
                     string responseToDelete = Console.ReadLine().ToLower();
 
                     switch (responseToDelete)
@@ -73,31 +73,31 @@ class Program
                             json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
                             File.WriteAllText(GetFilePath(), json);
 
-                            Console.WriteLine(MessageRepository.GetMessage("TaskDeletedConfirmation"));
+                            PrintMessage("TaskDeletedConfirmation");
                             break;
                         case "no":
-                            Console.WriteLine(MessageRepository.GetMessage("OperationCanceledConfirmation"));
+                            PrintMessage("OperationCanceledConfirmation");
                             break;
                         default:
-                            Console.WriteLine(MessageRepository.GetMessage("TaskDeletionError"));
+                            PrintMessage("TaskDeletionError");
                             break;
                     }
                     
                 }
                 else
                 {
-                    Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
+                    PrintMessage("NotExistsTaskId", args[1]);
                 }
 
             }
             else
             {
-                Console.WriteLine(MessageRepository.GetMessage("NeedSpecifyTaskIdForDelete"));
+                PrintMessage("NeedSpecifyTaskIdForDelete");
             }
         }
         else
         {
-            Console.WriteLine(MessageRepository.GetMessage("TaskToDeleteNotExist"));
+            PrintMessage("TaskToDeleteNotExist");
         }
     }
 
@@ -123,7 +123,7 @@ class Program
                     ListTasks(EnumTaskStatus.In_progress.ToString());
                     break;
                 default:
-                    Console.WriteLine(MessageRepository.GetMessage("StatusProvidedNotExist"));
+                    PrintMessage("StatusProvidedNotExist");
                     break;
             }
         }
@@ -149,22 +149,22 @@ class Program
                     json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(GetFilePath(), json);
 
-                    Console.WriteLine(MessageRepository.GetMessage("TaskUpdatedConfirmation"));
+                    PrintMessage("TaskUpdatedConfirmation");
                 }
                 else
                 {
-                    Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
+                    PrintMessage("NotExistsTaskId", args[1]);
                 }
 
             }
             else
             {
-                Console.WriteLine(MessageRepository.GetMessage("NeedSpecifyTaskIdForChangeStatus"));
+                PrintMessage("NeedSpecifyTaskIdForChangeStatus");
             }
         }
         else
         {
-            Console.WriteLine(MessageRepository.GetMessage("TaskToEditNotExist"));
+            PrintMessage("TaskToEditNotExist");
         }
     }
 
@@ -174,7 +174,7 @@ class Program
 
         if(!tasks.Any())
         {
-            Console.WriteLine(MessageRepository.GetMessage("TasksListEmpty"));
+            PrintMessage("TasksListEmpty");
             return;
         }
 
@@ -184,7 +184,7 @@ class Program
             
             if (!tasks.Any())
             {
-                Console.WriteLine(MessageRepository.GetMessage("NotExistTasksWithStatus"), status);
+                PrintMessage("NotExistTasksWithStatus", status);
                 return;
             }
         }
@@ -213,7 +213,7 @@ class Program
     {
         if (args.Length < 2)
         {
-            Console.WriteLine(MessageRepository.GetMessage("NeedTaskDescription"));
+            PrintMessage("NeedTaskDescription");
         }
         else
         {
@@ -239,7 +239,7 @@ class Program
         
         File.WriteAllText(filePath, json);
 
-        Console.Write(MessageRepository.GetMessage("TaskAddedSuccessfully"), task.id);
+        PrintMessage("TaskAddedSuccessfully", task.id);
     }
 
     public static int GetLastTaskId(List<Tasks> tasks)
@@ -271,12 +271,12 @@ class Program
     public static void UpdateTask(string[] args)
     {
         if (!ValidateTaskFileContainsTask()){
-            Console.WriteLine(MessageRepository.GetMessage("TaskToEditNotExist"));
+            PrintMessage("TaskToEditNotExist");
             return;
         }
         
         if (args.Length < 3) {
-            Console.WriteLine(MessageRepository.GetMessage("NeedTaskDescriptionExample"));
+            PrintMessage("NeedTaskDescriptionExample");
             return;
         }
 
@@ -292,11 +292,11 @@ class Program
             json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(GetFilePath(), json);
 
-            Console.WriteLine(MessageRepository.GetMessage("TaskUpdatedConfirmation"));
+            PrintMessage("TaskUpdatedConfirmation");
         }
         else
         {
-            Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
+            PrintMessage("NotExistsTaskId", args[1]);
         }
     }
 
@@ -323,5 +323,11 @@ class Program
         }
         
         return true;
+    }
+
+    public static void PrintMessage(string messageKey, params object[] args)
+    {
+        var message = MessageRepository.GetMessage(messageKey);
+        Console.WriteLine(args.Length > 0 ? string.Format(message, args) : message);
     }
 }
