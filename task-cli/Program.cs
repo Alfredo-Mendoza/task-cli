@@ -270,39 +270,33 @@ class Program
 
     public static void UpdateTask(string[] args)
     {
-        var existTasks = ValidateTaskFileContainsTask();
+        if (!ValidateTaskFileContainsTask()){
+            Console.WriteLine(MessageRepository.GetMessage("TaskToEditNotExist"));
+            return;
+        }
+        
+        if (args.Length < 3) {
+            Console.WriteLine(MessageRepository.GetMessage("NeedTaskDescriptionExample"));
+            return;
+        }
 
-        if (existTasks)
+        string json = File.ReadAllText(GetFilePath());
+        var tasks = GetListTaks();
+        var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
+
+        if (taskToEdit != null)
         {
-            if (args.Length == 3) {
-                string json = File.ReadAllText(GetFilePath());
-                var tasks = GetListTaks();
-                var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
+            taskToEdit.description = args[2];
+            taskToEdit.updatedAt = DateTime.Now;
 
-                if(taskToEdit != null)
-                {
-                    taskToEdit.description = args[2];
-                    taskToEdit.updatedAt = DateTime.Now;
+            json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(GetFilePath(), json);
 
-                    json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(GetFilePath(), json);
-                    
-                    Console.WriteLine(MessageRepository.GetMessage("TaskUpdatedConfirmation"));
-                }
-                else
-                {
-                    Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
-                }
-                
-            }
-            else
-            {
-                Console.WriteLine(MessageRepository.GetMessage("NeedTaskDescriptionExample"));
-            }
+            Console.WriteLine(MessageRepository.GetMessage("TaskUpdatedConfirmation"));
         }
         else
         {
-            Console.WriteLine(MessageRepository.GetMessage("TaskToEditNotExist"));
+            Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
         }
     }
 
