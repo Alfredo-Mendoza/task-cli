@@ -1,10 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Net.NetworkInformation;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Threading.Tasks;
 using task_cli.Models;
 
 class Program
@@ -17,7 +12,7 @@ class Program
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("\n\nNo command privided. Use 'help' for a list of commands.\n\n");
+                Console.WriteLine("\nNo command privided. Use 'help' for a list of commands.\n");
                 return;
             }
 
@@ -34,10 +29,74 @@ class Program
                 case "update":
                     UpdateTask(args);
                     break;
+                case "mark-in-progress":
+                case "mark-done":
+                case "mark-todo":
+                    ChangeTasksStatus(args);
+                    break;
+                case "delete":
+                    DeleteTask(args);
+                    break;
+                default:
+                    Console.WriteLine("\nNo command founded. Use 'help' for a list of commands.\n");
+                    break;
             }
         }
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
+        }
+    }
+
+    public static void DeleteTask(string[] args)
+    {
+        var existTasks = ValidateTaskFileContainsTask();
+
+        if (existTasks)
+        {
+            if (args.Length == 2)
+            {
+                string json = File.ReadAllText(GetFilePath());
+                var tasks = GetListTaks();
+                var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
+
+                if (taskToEdit != null)
+                {
+                    Console.WriteLine("Are you sure want to remove the task? Yes/No");
+                    string responseToDelete = Console.ReadLine().ToLower();
+
+                    switch (responseToDelete)
+                    {
+                        case "yes":
+                            tasks.Remove(taskToEdit);
+
+                            json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText(GetFilePath(), json);
+
+                            Console.WriteLine("Task deleted!");
+                            break;
+                        case "no":
+                            Console.WriteLine("Operation canceled!");
+                            break;
+                        default:
+                            Console.WriteLine("Response not valid. Operation canceled!");
+                            break;
+                    }
+                    
+                }
+                else
+                {
+                    Console.WriteLine($"\n\nNot exists a task with the Id: {args[1]}");
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("\n\nYou need to specify the Task Id. Example: task-cli mask-done 1");
+            }
+        }
+        else
+        {
+            Console.WriteLine("\n\nNot exists task to edit. Please add some tasks.");
         }
     }
 
@@ -62,17 +121,49 @@ class Program
                 case "in-progress":
                     ListTasks(EnumTaskStatus.In_progress.ToString());
                     break;
-                case "mark-in-progress":
-                case "mark-done":
-                case "mark-todo":
-                    break;
-                case "update":
-                    UpdateTask(args);
-                    break;
                 default:
                     Console.WriteLine("\n\nThe status provider is not valid");
                     break;
             }
+        }
+    }
+
+    public static void ChangeTasksStatus(string[] args)
+    {
+        var existTasks = ValidateTaskFileContainsTask();
+
+        if (existTasks)
+        {
+            if (args.Length == 2)
+            {
+                string json = File.ReadAllText(GetFilePath());
+                var tasks = GetListTaks();
+                var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
+
+                if (taskToEdit != null)
+                {
+                    taskToEdit.status = (args[0].Contains("done") ? EnumTaskStatus.Done : args[0].Contains("in-progress") ? EnumTaskStatus.In_progress : EnumTaskStatus.Todo).ToString();
+                    taskToEdit.updatedAt = DateTime.Now;
+
+                    json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(GetFilePath(), json);
+
+                    Console.WriteLine("Task updated!");
+                }
+                else
+                {
+                    Console.WriteLine($"\n\nNot exists a task with the Id: {args[1]}");
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("\n\nYou need to specify the Task Id. Example: task-cli mask-done 1");
+            }
+        }
+        else
+        {
+            Console.WriteLine("\n\nNot exists task to edit. Please add some tasks.");
         }
     }
 
@@ -95,8 +186,8 @@ class Program
                     task.id.ToString().PadRight(5) +
                     task.description.PadRight(30) +
                     task.status.PadRight(15) +
-                    task.createdAt.ToString("dd/MM/yyyy hh:mm:ss").PadRight(25) +
-                    task.createdAt.ToString("dd/MM/yyyy hh:mm:ss").PadRight(25)
+                    task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25) +
+                    task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25)
                 );
             }
             Console.WriteLine("\n\n");
