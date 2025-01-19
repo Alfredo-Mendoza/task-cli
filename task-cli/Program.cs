@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using task_cli.Messages;
 using task_cli.Models;
 
 class Program
@@ -12,7 +13,7 @@ class Program
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("\nNo command privided. Use 'help' for a list of commands.\n");
+                Console.WriteLine(MessageRepository.GetMessage("NotCommandProvided"));
                 return;
             }
 
@@ -38,7 +39,7 @@ class Program
                     DeleteTask(args);
                     break;
                 default:
-                    Console.WriteLine("\nNo command founded. Use 'help' for a list of commands.\n");
+                    Console.WriteLine(MessageRepository.GetMessage("NotCommandFounded"));
                     break;
             }
         }
@@ -61,7 +62,7 @@ class Program
 
                 if (taskToEdit != null)
                 {
-                    Console.WriteLine("Are you sure want to remove the task? Yes/No");
+                    Console.WriteLine(MessageRepository.GetMessage("ConfirmTaskDeletion"));
                     string responseToDelete = Console.ReadLine().ToLower();
 
                     switch (responseToDelete)
@@ -72,31 +73,31 @@ class Program
                             json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
                             File.WriteAllText(GetFilePath(), json);
 
-                            Console.WriteLine("Task deleted!");
+                            Console.WriteLine(MessageRepository.GetMessage("TaskDeletedConfirmation"));
                             break;
                         case "no":
-                            Console.WriteLine("Operation canceled!");
+                            Console.WriteLine(MessageRepository.GetMessage("OperationCanceledConfirmation"));
                             break;
                         default:
-                            Console.WriteLine("Response not valid. Operation canceled!");
+                            Console.WriteLine(MessageRepository.GetMessage("TaskDeletionError"));
                             break;
                     }
                     
                 }
                 else
                 {
-                    Console.WriteLine($"\n\nNot exists a task with the Id: {args[1]}");
+                    Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
                 }
 
             }
             else
             {
-                Console.WriteLine("\n\nYou need to specify the Task Id. Example: task-cli mask-done 1");
+                Console.WriteLine(MessageRepository.GetMessage("NeedSpecifyTaskIdForDelete"));
             }
         }
         else
         {
-            Console.WriteLine("\n\nNot exists task to edit. Please add some tasks.");
+            Console.WriteLine(MessageRepository.GetMessage("TaskToDeleteNotExist"));
         }
     }
 
@@ -108,7 +109,7 @@ class Program
         }
         else
         {
-            string typeListCommand = args[1];
+            string typeListCommand = args[1].ToLower();
 
             switch (typeListCommand)
             {
@@ -122,7 +123,7 @@ class Program
                     ListTasks(EnumTaskStatus.In_progress.ToString());
                     break;
                 default:
-                    Console.WriteLine("\n\nThe status provider is not valid");
+                    Console.WriteLine(MessageRepository.GetMessage("StatusProvidedNotExist"));
                     break;
             }
         }
@@ -148,22 +149,22 @@ class Program
                     json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(GetFilePath(), json);
 
-                    Console.WriteLine("Task updated!");
+                    Console.WriteLine(MessageRepository.GetMessage("TaskUpdatedConfirmation"));
                 }
                 else
                 {
-                    Console.WriteLine($"\n\nNot exists a task with the Id: {args[1]}");
+                    Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
                 }
 
             }
             else
             {
-                Console.WriteLine("\n\nYou need to specify the Task Id. Example: task-cli mask-done 1");
+                Console.WriteLine(MessageRepository.GetMessage("NeedSpecifyTaskIdForChangeStatus"));
             }
         }
         else
         {
-            Console.WriteLine("\n\nNot exists task to edit. Please add some tasks.");
+            Console.WriteLine(MessageRepository.GetMessage("TaskToEditNotExist"));
         }
     }
 
@@ -173,7 +174,7 @@ class Program
 
         if(status != null)
         {
-            tasks = tasks.FindAll(t => t.status == status);
+            tasks = tasks.FindAll(t => t.status.ToLower() == status.ToLower());
         }
 
         if (tasks.Any())
@@ -194,7 +195,7 @@ class Program
         }
         else
         {
-            Console.WriteLine($"\n\nNot exist tasks with \"{status}\" status.");
+            Console.WriteLine(MessageRepository.GetMessage("NotExistTasksWithStatus"), status);
         }
     }
 
@@ -202,11 +203,14 @@ class Program
     {
         if (args.Length < 2)
         {
-            Console.WriteLine("Error - Do you need to add a description for the task. Example: \n\ntask-cli add \"But groceries and cook dinner\"");
+            Console.WriteLine(MessageRepository.GetMessage("NeedTaskDescription"));
+        }
+        else
+        {
+            CreateFileIfNotExists();
+            SaveTask(args[1]);
         }
 
-        CreateFileIfNotExists();
-        SaveTask(args[1]);
     }
 
     public static void SaveTask(string description)
@@ -225,7 +229,7 @@ class Program
         
         File.WriteAllText(filePath, json);
 
-        Console.Write($"\n\nTask added successfully (ID: {task.id})");
+        Console.Write(MessageRepository.GetMessage("TaskAddedSuccessfully"), task.id);
     }
 
     public static int GetLastTaskId(List<Tasks> tasks)
@@ -268,22 +272,22 @@ class Program
                     json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(GetFilePath(), json);
                     
-                    Console.WriteLine("Task updated!");
+                    Console.WriteLine(MessageRepository.GetMessage("TaskUpdatedConfirmation"));
                 }
                 else
                 {
-                    Console.WriteLine($"\n\nNot exists a task with the Id: {args[1]}");
+                    Console.WriteLine(MessageRepository.GetMessage("NotExistsTaskId"), args[1]);
                 }
                 
             }
             else
             {
-                Console.WriteLine("\n\nYou need to specify the Task Id and the Description. Example: task-cli update 1 \"Buy some candys\"");
+                Console.WriteLine(MessageRepository.GetMessage("NeedTaskDescriptionExample"));
             }
         }
         else
         {
-            Console.WriteLine("\n\nNot exists task to edit. Please add some tasks.");
+            Console.WriteLine(MessageRepository.GetMessage("TaskToEditNotExist"));
         }
     }
 
