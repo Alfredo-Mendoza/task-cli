@@ -218,12 +218,12 @@ class Program
         else
         {
             CreateFileIfNotExists();
-            SaveTask(args[1]);
+            SaveNewTask(args[1]);
         }
 
     }
 
-    public static void SaveTask(string description)
+    public static void SaveNewTask(string description)
     {
         List<Tasks> tasks = GetListTaks();
         Tasks task = new Tasks();
@@ -244,9 +244,14 @@ class Program
 
     public static int GetLastTaskId(List<Tasks> tasks)
     {
-        int countTasks = tasks.Count;
-        Tasks lastTaks = tasks[countTasks - 1];
-        return lastTaks.id;
+        if (tasks.Any())
+        {
+            int countTasks = tasks.Count;
+            Tasks lastTaks = tasks[countTasks - 1];
+            return lastTaks.id;
+        }
+
+        return 0;
     }
 
     public static string GetFilePath()
