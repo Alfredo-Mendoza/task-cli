@@ -4,6 +4,7 @@ using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 using task_cli.Models;
 
 class Program
@@ -61,8 +62,15 @@ class Program
                 case "in-progress":
                     ListTasks(EnumTaskStatus.In_progress.ToString());
                     break;
+                case "mark-in-progress":
+                case "mark-done":
+                case "mark-todo":
+                    break;
+                case "update":
+                    UpdateTask(args);
+                    break;
                 default:
-                    Console.WriteLine("\n\nThe status provider is not valid\n\n");
+                    Console.WriteLine("\n\nThe status provider is not valid");
                     break;
             }
         }
@@ -74,7 +82,7 @@ class Program
 
         if(status != null)
         {
-            tasks = (List<Tasks>)tasks.Where(t => t.status == status);
+            tasks = tasks.FindAll(t => t.status == status);
         }
 
         if (tasks.Any())
@@ -95,7 +103,7 @@ class Program
         }
         else
         {
-            Console.WriteLine($"\n\nNot exist task with \"{status}\" status. \n\n");
+            Console.WriteLine($"\n\nNot exist tasks with \"{status}\" status.");
         }
     }
 
@@ -126,7 +134,7 @@ class Program
         
         File.WriteAllText(filePath, json);
 
-        Console.Write($"\n\nTask added successfully (ID: {task.id})\n\n");
+        Console.Write($"\n\nTask added successfully (ID: {task.id})");
     }
 
     public static int GetLastTaskId(List<Tasks> tasks)
@@ -153,13 +161,38 @@ class Program
     public static void UpdateTask(string[] args)
     {
         var existTasks = ValidateTaskFileContainsTask();
+
         if (existTasks)
         {
-            Console.WriteLine("");
+            if (args.Length == 3) {
+                string json = File.ReadAllText(GetFilePath());
+                var tasks = GetListTaks();
+                var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
+
+                if(taskToEdit != null)
+                {
+                    taskToEdit.description = args[2];
+                    taskToEdit.updatedAt = DateTime.Now;
+
+                    json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(GetFilePath(), json);
+                    
+                    Console.WriteLine("Task updated!");
+                }
+                else
+                {
+                    Console.WriteLine($"\n\nNot exists a task with the Id: {args[1]}");
+                }
+                
+            }
+            else
+            {
+                Console.WriteLine("\n\nYou need to specify the Task Id and the Description. Example: task-cli update 1 \"Buy some candys\"");
+            }
         }
         else
         {
-            Console.WriteLine("");
+            Console.WriteLine("\n\nNot exists task to edit. Please add some tasks.");
         }
     }
 
