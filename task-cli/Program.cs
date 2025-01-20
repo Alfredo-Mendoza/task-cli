@@ -1,7 +1,5 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Threading.Tasks;
 using task_cli.Messages;
 using task_cli.Models;
 
@@ -40,6 +38,9 @@ class Program
                 case "delete":
                     DeleteTask(args);
                     break;
+                case "help":
+                    DisplayHelp();
+                    break;
                 default:
                     PrintMessage("NotCommandFounded");
                     break;
@@ -48,6 +49,22 @@ class Program
         catch (Exception ex) {
             Console.WriteLine(ex.Message);
         }
+    }
+
+    public static void DisplayHelp()
+    {
+        Console.WriteLine("Available Commands:");
+        Console.WriteLine("add <description>             - Adds a new task with the given description.");
+        Console.WriteLine("list                          - Lists all tasks.");
+        Console.WriteLine("list done                     - Lists all completed tasks.");
+        Console.WriteLine("list todo                     - Lists all tasks to do.");
+        Console.WriteLine("list in-progress              - Lists all tasks in progress.");
+        Console.WriteLine("update <id> <new description> - Updates the description of a task with the given ID.");
+        Console.WriteLine("mark-done <id>                - Marks a task with the given ID as done.");
+        Console.WriteLine("mark-todo <id>                - Marks a task with the given ID as to-do.");
+        Console.WriteLine("mark-in-progress <id>         - Marks a task with the given ID as in progress.");
+        Console.WriteLine("delete <id>                   - Deletes a task with the given ID.");
+        Console.WriteLine("help                          - Displays this help message.");
     }
 
     public static void DeleteTask(string[] args)
