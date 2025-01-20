@@ -2,6 +2,8 @@
 
 A simple command-line application to manage tasks. It allows you to add, update, list, delete, and change the status of tasks.
 
+Practice project taken from https://roadmap.sh/projects/task-tracker
+
 ## Features
 - Add tasks with descriptions.
 - List all tasks or filter by status (`todo`, `in-progress`, `done`).
