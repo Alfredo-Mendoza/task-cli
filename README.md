@@ -12,9 +12,61 @@ A simple command-line application to manage tasks. It allows you to add, update,
 
 ## Installation
 
-1. Clone the repository or copy the code to your local machine:
-   ```bash
-   git clone https://github.com/your-username/task-cli.git
+Follow these steps to clone, build, and run the project on your local machine.
+
+### Prerequisites
+- [Download and install .NET SDK 8.0](https://dotnet.microsoft.com/download).
+- A code editor or IDE (e.g., Visual Studio Code, Visual Studio, or Rider).
+- Git installed for cloning the repository.
+
+---
+
+### Steps to Set Up
+
+#### 1. Clone the Repository
+   1. Open your preferred web browser and go to the repository's GitHub page.
+   2. Click the green "Code" button and select "Download ZIP" or copy the repository link if you want to clone using Git.
+   3. If using Git:
+      - Open **Git Bash** (or terminal on macOS/Linux).
+      - Navigate to the folder where you want to save the project.
+      - Run the following command:
+        ```bash
+        git clone https://github.com/Alfredo-Mendoza/task-cli.git
+        ```
+   4. Once downloaded or cloned, open the project folder.
+
+#### 2. Publish the Project
+   1. Open **Visual Studio** or **Visual Studio Code**.
+   2. Open the cloned project folder in the editor.
+   3. For **Visual Studio**:
+      - Go to the **Build** menu at the top.
+      - Click on **Publish**.
+      - Choose **Folder** and set the output directory to `./dist`.
+      - Click on **Publish**.
+   4. For **Visual Studio Code** (using terminal):
+      - Open the **Terminal** in Visual Studio Code (from the **View** menu, select **Terminal**).
+      - In the terminal, type:
+        ```bash
+        dotnet publish -c Release -o ./dist
+        ```
+      - This will create a `dist` folder with the published executable files.
+
+#### 3. Set the Environment Variable for the Executable
+   1. **Windows**:
+      - Press `Win + R` to open the **Run** dialog.
+      - Type `sysdm.cpl` and hit **Enter** to open the System Properties.
+      - Go to the **Advanced** tab.
+      - Click **Environment Variables**.
+      - Under **System Variables**, click **New**.
+      - Set the **Variable Name** as `TASK_CLI_PATH` and **Variable Value** as the path to the `task-cli.exe` file in the `dist` folder. For example: `C:\path\to\dist\task-cli.exe`.
+      - Click **OK** and then **OK** again to close the window.
+
+#### 4. Additional Notes
+- If you make any changes to the source code, remember to repeat the publish step to update the published files.
+- To get help with the application, you can run:
+  ```bash
+  task-cli help
+  ```
 
 
 ## Usage Examples
