@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using task_cli.Messages;
@@ -26,7 +27,7 @@ class Program
                     AddTask(args);
                     break;
                 case "list":
-                    chooseListView(args);
+                    ChooseListView(args);
                     break;
                 case "update":
                     UpdateTask(args);
@@ -102,7 +103,7 @@ class Program
         }
     }
 
-    public static void chooseListView(string[] args)
+    public static void ChooseListView(string[] args)
     {
         if(args.Length < 2)
         {
@@ -189,15 +190,35 @@ class Program
         Console.WriteLine(new string('-', 100));
         foreach (var task in tasks)
         {
-            Console.WriteLine(
-                task.id.ToString().PadRight(5) +
-                task.description.PadRight(30) +
-                task.status.PadRight(15) +
-                task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25) +
-                task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25)
-            );
+            Console.Write(task.id.ToString().PadRight(5));
+            Console.Write(task.description.PadRight(30));
+            FormatStatusColor(task.status);
+            Console.Write(task.status.PadRight(15));
+            Console.ResetColor();
+            Console.Write(task.createdAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25));
+            Console.Write(task.updatedAt.ToString("dd/MM/yyyy HH:mm:ss").PadRight(25));
+            Console.WriteLine();
         }
         Console.WriteLine("\n\n");
+    }
+
+    public static void FormatStatusColor(string status)
+    {
+        switch (status.ToLower())
+        {
+            case "done":
+                Console.ForegroundColor = ConsoleColor.Green;
+                break;
+            case "in_progress":
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                break;
+            case "todo":
+                Console.ForegroundColor = ConsoleColor.Red;
+                break;
+            default:
+                Console.ForegroundColor = ConsoleColor.White;
+                break;
+        }
     }
 
     public static void AddTask(string[] args)
