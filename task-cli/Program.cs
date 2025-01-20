@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 using task_cli.Messages;
 using task_cli.Models;
 
@@ -131,41 +132,31 @@ class Program
 
     public static void ChangeTasksStatus(string[] args)
     {
-        var existTasks = ValidateTaskFileContainsTask();
 
-        if (existTasks)
-        {
-            if (args.Length == 2)
-            {
-                string json = File.ReadAllText(GetFilePath());
-                var tasks = GetListTaks();
-                var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
-
-                if (taskToEdit != null)
-                {
-                    taskToEdit.status = (args[0].Contains("done") ? EnumTaskStatus.Done : args[0].Contains("in-progress") ? EnumTaskStatus.In_progress : EnumTaskStatus.Todo).ToString();
-                    taskToEdit.updatedAt = DateTime.Now;
-
-                    json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(GetFilePath(), json);
-
-                    PrintMessage("TaskUpdatedConfirmation");
-                }
-                else
-                {
-                    PrintMessage("NotExistsTaskId", args[1]);
-                }
-
-            }
-            else
-            {
-                PrintMessage("NeedSpecifyTaskIdForChangeStatus");
-            }
-        }
-        else
+        if (!ValidateTaskFileContainsTask())
         {
             PrintMessage("TaskToEditNotExist");
+            return;
         }
+
+        if (args.Length < 2)
+        {
+            PrintMessage("NeedSpecifyTaskIdForChangeStatus");
+            return;
+        }
+        
+        var tasks = GetListTaks();
+
+        if (!TryFindTaskById(tasks, args[1], out var taskToEdit))
+        {
+            PrintMessage("NotExistsTaskId", args[1]);
+            return;
+        }
+
+        UpdateTaskStatus(taskToEdit, args[0]);
+        SaveTasksToFile(tasks);
+
+        PrintMessage("TaskUpdatedConfirmation");
     }
 
     public static void ListTasks([Optional] string? status)
@@ -234,10 +225,8 @@ class Program
         tasks.Add(task);
 
         string filePath = GetFilePath();
-        string json = File.ReadAllText(filePath);
-        json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
-        
-        File.WriteAllText(filePath, json);
+
+        SaveTasksToFile(tasks);
 
         PrintMessage("TaskAddedSuccessfully", task.id);
     }
@@ -280,24 +269,18 @@ class Program
             return;
         }
 
-        string json = File.ReadAllText(GetFilePath());
         var tasks = GetListTaks();
-        var taskToEdit = tasks.Find(t => t.id == Int32.Parse(args[1]));
-
-        if (taskToEdit != null)
-        {
-            taskToEdit.description = args[2];
-            taskToEdit.updatedAt = DateTime.Now;
-
-            json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(GetFilePath(), json);
-
-            PrintMessage("TaskUpdatedConfirmation");
-        }
-        else
+        
+        if (!TryFindTaskById(tasks, args[1], out var taskToEdit))
         {
             PrintMessage("NotExistsTaskId", args[1]);
+            return;
         }
+
+        UpdateTaskDetails(taskToEdit, args[2]);
+        SaveTasksToFile(tasks);
+        
+        PrintMessage("TaskUpdatedConfirmation");
     }
 
     public static void CreateFileIfNotExists()
@@ -329,5 +312,35 @@ class Program
     {
         var message = MessageRepository.GetMessage(messageKey);
         Console.WriteLine(args.Length > 0 ? string.Format(message, args) : message);
+    }
+
+    public static bool TryFindTaskById(List<Tasks> tasks, string idString, out Tasks? task)
+    {
+        task = null;
+
+        if (int.TryParse(idString, out var id))
+        {
+            task = tasks.Find(t => t.id == id);
+        }
+
+        return task != null;
+    }
+
+    public static void UpdateTaskDetails(Tasks task, string newDescription)
+    {
+        task.description = newDescription;
+        task.updatedAt = DateTime.Now;
+    }
+
+    public static void UpdateTaskStatus(Tasks task, string newStatus)
+    {
+        task.status = (newStatus.Contains("done") ? EnumTaskStatus.Done : newStatus.Contains("in-progress") ? EnumTaskStatus.In_progress : EnumTaskStatus.Todo).ToString();
+        task.updatedAt = DateTime.Now;
+    }
+
+    public static void SaveTasksToFile(List<Tasks> tasks)
+    {
+        var json = JsonSerializer.Serialize(tasks, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(GetFilePath(), json);
     }
 }
